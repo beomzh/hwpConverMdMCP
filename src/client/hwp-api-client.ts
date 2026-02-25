@@ -41,16 +41,25 @@ export class HwpApiClient {
     const blob = new Blob([new Uint8Array(fileBuffer)], { type: "application/octet-stream" });
     formData.append("file", blob, filename);
 
-    const response = await fetch(`${this.baseUrl}/api/v1/convert`, {
-      method: "POST",
-      body: formData,
-    });
+    // 대용량 HWP 변환은 수 분 소요될 수 있으므로 5분 타임아웃 설정
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5 * 60 * 1000);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HWP API error (${response.status}): ${errorText}`);
+    try {
+      const response = await fetch(`${this.baseUrl}/api/v1/convert`, {
+        method: "POST",
+        body: formData,
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HWP API error (${response.status}): ${errorText}`);
+      }
+
+      return (await response.json()) as ConvertResult;
+    } finally {
+      clearTimeout(timeout);
     }
-
-    return (await response.json()) as ConvertResult;
   }
 }
