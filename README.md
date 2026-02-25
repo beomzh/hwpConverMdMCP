@@ -382,10 +382,6 @@ ANTHROPIC_API_KEY=sk-ant-... npx tsx examples/llm-with-mcp.ts /path/to/doc.hwp "
 
 ```
 k8s_manifest/
-├── common/                # 공통 (양쪽 프로젝트 공유)
-│   ├── namespace.yaml         # 네임스페이스 + Pod Security Standards
-│   ├── resource-quota.yaml    # ResourceQuota + LimitRange
-│   └── default-deny.yaml      # 기본 네트워크 차단 정책
 ├── api/                   # hwpConverMd (Python API) - 별도 프로젝트
 │   ├── serviceaccount.yaml
 │   ├── rbac.yaml
@@ -421,10 +417,7 @@ k8s_manifest/
 # 1. 공통 리소스 (네임스페이스, 기본 정책)
 kubectl apply -f k8s_manifest/common/
 
-# 2. API 서버 (hwpConverMd 프로젝트)
-kubectl apply -f k8s_manifest/api/
-
-# 3. MCP 서버 (이 프로젝트)
+# 2. MCP 서버 (이 프로젝트)
 kubectl apply -f k8s_manifest/mcp/
 ```
 
@@ -433,9 +426,6 @@ kubectl apply -f k8s_manifest/mcp/
 #### 1. 이미지 레지스트리
 
 ```yaml
-# api/deployment.yaml
-image: your-registry.com/hwp-converter-api:1.0.0   # [수정 필요]
-
 # mcp/deployment.yaml
 image: your-registry.com/hwp-converter-mcp:1.0.0   # [수정 필요]
 ```
