@@ -1,0 +1,30 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hwp-mcp-role
+  namespace: hwp-converter
+  labels:
+    app.kubernetes.io/name: hwp-mcp
+    app.kubernetes.io/part-of: hwp-converter
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["hwp-converter-config"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hwp-mcp-rolebinding
+  namespace: hwp-converter
+  labels:
+    app.kubernetes.io/name: hwp-mcp
+    app.kubernetes.io/part-of: hwp-converter
+subjects:
+  - kind: ServiceAccount
+    name: hwp-mcp-sa
+    namespace: hwp-converter
+roleRef:
+  kind: Role
+  name: hwp-mcp-role
+  apiGroup: rbac.authorization.k8s.io

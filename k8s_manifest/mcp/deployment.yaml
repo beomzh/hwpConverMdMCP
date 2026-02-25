@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hwp-mcp
+  namespace: hwp-converter
+  labels:
+    app: hwp-mcp
+    app.kubernetes.io/name: hwp-mcp
+    app.kubernetes.io/part-of: hwp-converter
+    app.kubernetes.io/component: mcp-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hwp-mcp
+  template:
+    metadata:
+      labels:
+        app: hwp-mcp
+        app.kubernetes.io/name: hwp-mcp
+    spec:
+      serviceAccountName: hwp-mcp-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: hwp-mcp
+          # ================================================
+          # [수정 필요] 실제 레지스트리 주소로 변경하세요
+          # 예: your-registry.com/hwp-converter-mcp:1.0.0
+          # ================================================
+          image: hwp-converter-mcp:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: hwp-converter-config
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 3
+            failureThreshold: 10
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hwp-mcp-svc
+  namespace: hwp-converter
+  labels:
+    app: hwp-mcp
+    app.kubernetes.io/name: hwp-mcp
+    app.kubernetes.io/part-of: hwp-converter
+spec:
+  selector:
+    app: hwp-mcp
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
+      protocol: TCP
+  type: ClusterIP

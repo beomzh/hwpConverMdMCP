@@ -1,0 +1,32 @@
+{
+  "name": "hwp-converter-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for converting HWP/HWPX files to Markdown",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "hwp-converter-mcp": "dist/transport/stdio.js",
+    "hwp-converter-mcp-http": "dist/transport/http.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev:stdio": "tsx src/transport/stdio.ts",
+    "dev:http": "tsx src/transport/http.ts",
+    "start:stdio": "node dist/transport/stdio.js",
+    "start:http": "node dist/transport/http.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "express": "^4.21.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

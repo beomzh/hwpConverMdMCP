@@ -1,0 +1,47 @@
+# MCP 서버 NetworkPolicy
+# Ingress: Ingress Controller에서만 접근 허용
+# Egress: API 서버 + DNS만 허용
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hwp-mcp-netpol
+  namespace: hwp-converter
+  labels:
+    app.kubernetes.io/name: hwp-mcp
+    app.kubernetes.io/part-of: hwp-converter
+spec:
+  podSelector:
+    matchLabels:
+      app: hwp-mcp
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Ingress Controller에서의 접근만 허용
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              # ================================================
+              # [수정 필요] Ingress Controller 네임스페이스 라벨
+              # 확인: kubectl get ns --show-labels | grep ingress
+              # ================================================
+              kubernetes.io/metadata.name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    # API 서버로의 통신만 허용
+    - to:
+        - podSelector:
+            matchLabels:
+              app: hwp-api
+      ports:
+        - protocol: TCP
+          port: 8000
+    # DNS 조회 허용
+    - to: []
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

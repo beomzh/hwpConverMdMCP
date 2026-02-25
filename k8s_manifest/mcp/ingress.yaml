@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hwp-mcp-ingress
+  namespace: hwp-converter
+  labels:
+    app.kubernetes.io/name: hwp-mcp
+    app.kubernetes.io/part-of: hwp-converter
+  annotations:
+    # ================================================
+    # [수정 필요] 사용하는 Ingress Controller에 맞게 수정
+    # ================================================
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    # SSE 스트리밍을 위한 버퍼링 비활성화 (필수)
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  # ================================================
+  # [수정 필요] Ingress Controller 클래스 확인
+  # kubectl get ingressclass
+  # ================================================
+  ingressClassName: nginx
+  tls:
+    # ================================================
+    # [수정 필요] TLS 인증서 Secret 이름 + 도메인
+    # ================================================
+    - hosts:
+        - mcp.your-domain.com
+      secretName: hwp-mcp-tls
+  rules:
+    # ================================================
+    # [수정 필요] 실제 도메인으로 변경
+    # ================================================
+    - host: mcp.your-domain.com
+      http:
+        paths:
+          - path: /mcp
+            pathType: Prefix
+            backend:
+              service:
+                name: hwp-mcp-svc
+                port:
+                  number: 3000
+          - path: /healthz
+            pathType: Exact
+            backend:
+              service:
+                name: hwp-mcp-svc
+                port:
+                  number: 3000
