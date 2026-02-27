@@ -4,6 +4,7 @@ import { basename } from "node:path";
 export interface ConvertResult {
   filename: string;
   markdown: string;
+  download_url?: string;
 }
 
 export class HwpApiClient {
