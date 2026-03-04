@@ -42,9 +42,9 @@ export class HwpApiClient {
     const blob = new Blob([new Uint8Array(fileBuffer)], { type: "application/octet-stream" });
     formData.append("file", blob, filename);
 
-    // 대용량 HWP 변환은 수 분 소요될 수 있으므로 5분 타임아웃 설정
+    // 대용량 HWP(6MB+)는 hwp5html 변환에 4~10분 소요 → 11분 타임아웃
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5 * 60 * 1000);
+    const timeout = setTimeout(() => controller.abort(), 11 * 60 * 1000);
 
     try {
       const response = await fetch(`${this.baseUrl}/api/v1/convert`, {

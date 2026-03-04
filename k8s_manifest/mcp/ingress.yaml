@@ -10,8 +10,9 @@ metadata:
     # ================================================
     # [수정 필요] 사용하는 Ingress Controller에 맞게 수정
     # ================================================
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    # hwp5html 타임아웃(600초) + 후처리 여유 = 660초
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "660"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "660"
     # SSE 스트리밍을 위한 버퍼링 비활성화 (필수)
     nginx.ingress.kubernetes.io/proxy-buffering: "off"
     nginx.ingress.kubernetes.io/enable-cors: "true"
