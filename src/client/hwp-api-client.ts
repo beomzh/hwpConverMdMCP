@@ -5,6 +5,12 @@ export interface ConvertResult {
   filename: string;
   markdown: string;
   download_url?: string;
+  error?: string;
+}
+
+/** HWP API 실제 응답 형식: { results: ConvertResult[] } */
+interface ApiResponse {
+  results: ConvertResult[];
 }
 
 export class HwpApiClient {
@@ -58,7 +64,15 @@ export class HwpApiClient {
         throw new Error(`HWP API error (${response.status}): ${errorText}`);
       }
 
-      return (await response.json()) as ConvertResult;
+      const data = (await response.json()) as ApiResponse;
+      const result = data.results?.[0];
+      if (!result) {
+        throw new Error("API 응답에 변환 결과가 없습니다.");
+      }
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result;
     } finally {
       clearTimeout(timeout);
     }

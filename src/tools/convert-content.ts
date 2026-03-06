@@ -45,17 +45,12 @@ export function registerConvertContentTool(
         }
 
         const result = await apiClient.convertContent(content, filename);
-        // download_url을 별도 텍스트 블록으로 전달 (CustomFunction에서 처리)
-        const parts: Array<{type: "text", text: string}> = [
-          { type: "text" as const, text: result.markdown },
-        ];
-        if (result.download_url) {
-          parts.push({
-            type: "text" as const,
-            text: `[DOWNLOAD_URL]${result.download_url}`,
-          });
-        }
-        return { content: parts };
+        return {
+          content: [
+            { type: "text" as const, text: result.markdown },
+            { type: "text" as const, text: `[DOWNLOAD_URL]${result.download_url || ""}` },
+          ],
+        };
       } catch (error) {
         const message =
           error instanceof Error ? error.message : String(error);
