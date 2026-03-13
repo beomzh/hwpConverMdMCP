@@ -24,6 +24,7 @@ MCP 클라이언트 (Claude Desktop / Cursor / Flowise CustomFunction)
         │
         ├── POST /api/v1/convert        → JSON (markdown + download_url)
         ├── POST /api/v1/convert/base64  → JSON (Base64 입력, Flowise용)
+        ├── POST /api/v1/upload-md       → JSON (임의 MD 저장 → download_url 발급)
         └── GET  /api/v1/download/{file} → 파일 다운로드
 ```
 
